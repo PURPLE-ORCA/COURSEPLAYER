@@ -4,7 +4,7 @@ import { Head, useForm, usePage, Link } from '@inertiajs/react';
 
 export default function Dashboard() {
     const user = usePage().props.auth.user;
-    const courses = usePage().props.courses; // Get the courses from the backend
+    const courses = usePage().props.courses;
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const { data, setData, post, processing, errors } = useForm({
@@ -15,155 +15,126 @@ export default function Dashboard() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
-        // Create FormData object for file upload
         const formData = new FormData();
         formData.append('title', data.title);
         formData.append('description', data.description);
         if (data.cover) {
             formData.append('cover', data.cover);
         }
-
         post(route('courses.store'), formData, {
             onSuccess: () => {
                 setIsModalOpen(false);
-                // Reset form
-                setData({
-                    title: '',
-                    description: '',
-                    cover: null,
-                });
+                setData({ title: '', description: '', cover: null });
             },
         });
     };
 
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">
-                    Dashboard
-                </h2>
-            }
-        >
+        <AuthenticatedLayout>
             <Head title="Dashboard" />
+            <main className="py-12 px-4 sm:px-6 lg:px-8 bg-black min-h-screen">
+                {/* Header Section */}
+                <div className="text-center mb-12">
+                    <h1 className="text-5xl font-bold text-purple-400 mb-4">Welcome back, {user.name}!</h1>
+                    <p className="text-gray-400 text-lg">Manage your courses and create new ones.</p>
+                </div>
 
-            <main className="py-6 text-center">
-                <h1 className="text-2xl font-semibold text-gray-800 dark:text-gray-200">
-                    Welcome back, {user.name}!
-                </h1>
-
-                <div className="mt-6">
-                    <button 
-                        className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                {/* Add Course Button */}
+                <div className="flex justify-center mb-12">
+                    <button
+                        className="px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-full hover:from-purple-700 hover:to-indigo-700 transition-transform transform hover:scale-105 shadow-lg"
                         onClick={() => setIsModalOpen(true)}
                     >
-                        Add a new course
+                        + Create New Course
                     </button>
                 </div>
 
-                {/* Display Courses */}
-                <div className="mt-8">
-                    <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
-                        Your Courses
-                    </h2>
+                {/* Courses Grid */}
+                <div className="max-w-7xl mx-auto">
+                    <h2 className="text-3xl font-bold text-purple-400 mb-8">Your Courses</h2>
                     {courses.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="flex flex-col gap-4">
                             {courses.map((course) => (
-                                <Link  href={route('courses.show', course.id)} key={course.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-                                        {course.title}
-                                    </h3>
-                                    <p className="text-gray-600 dark:text-gray-400 mt-2">
-                                        {course.description}
-                                    </p>
+                                <Link
+                                    href={route('courses.show', course.id)}
+                                    key={course.id}
+                                    className="flex relative p-2 bg-gray-900 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow"
+                                >
                                     {course.cover && (
                                         <img
                                             src={`/storage/${course.cover}`}
                                             alt="Course cover"
-                                            className="w-full h-32 object-cover mt-4 rounded-lg"
+                                            className="w-64 h-24 sm:w-96 sm:h-48 object-cover"
                                         />
                                     )}
+                                    <div className="p-6">
+                                        <h3 className="text-2xl font-bold text-white mb-2">{course.title}</h3>
+                                        <p className="text-white text-xl">{course.description}</p>
+                                    </div>
+                                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity"></div>
                                 </Link>
                             ))}
                         </div>
                     ) : (
-                        <p className="text-gray-600 dark:text-gray-400 mt-4">
-                            You haven't created any courses yet.
-                        </p>
+                        <p className="text-gray-400 text-center">You haven't created any courses yet.</p>
                     )}
                 </div>
 
-                {/* Modal for Adding a New Course */}
+                {/* Add Course Modal */}
                 {isModalOpen && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-96">
-                            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                                Add a New Course
-                            </h2>
-
-                            <form onSubmit={handleSubmit} encType="multipart/form-data">
-                                <div className="mt-4">
-                                    <label className="block text-sm text-gray-700 dark:text-gray-300">
-                                        Course Title
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={data.title}
-                                        onChange={e => setData('title', e.target.value)}
-                                        className="w-full p-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600"
-                                    />
-                                    {errors.title && (
-                                        <p className="text-red-500 text-sm mt-1">{errors.title}</p>
-                                    )}
-                                </div>
-
-                                <div className="mt-4">
-                                    <label className="block text-sm text-gray-700 dark:text-gray-300">
-                                        Description
-                                    </label>
-                                    <textarea
-                                        value={data.description}
-                                        onChange={e => setData('description', e.target.value)}
-                                        className="w-full p-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600"
-                                        rows="3"
-                                    />
-                                    {errors.description && (
-                                        <p className="text-red-500 text-sm mt-1">{errors.description}</p>
-                                    )}
-                                </div>
-
-                                <div className="mt-4">
-                                    <label className="block text-sm text-gray-700 dark:text-gray-300">
-                                        Cover Image
-                                    </label>
-                                    <input
-                                        type="file"
-                                        onChange={e => setData('cover', e.target.files[0])}
-                                        className="w-full p-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600"
-                                        accept="image/*"
-                                    />
-                                    {errors.cover && (
-                                        <p className="text-red-500 text-sm mt-1">{errors.cover}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex justify-end gap-4 mt-6">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsModalOpen(false)}
-                                        className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={processing}
-                                        className="px-4 py-2 text-white bg-purple-600 rounded-md hover:bg-purple-700 disabled:opacity-50"
-                                    >
-                                        {processing ? 'Saving...' : 'Save'}
-                                    </button>
-                                </div>
-                            </form>
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75">
+                        <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4">
+                            <div className="p-8">
+                                <h2 className="text-2xl font-bold text-purple-400 mb-6">Create a New Course</h2>
+                                <form onSubmit={handleSubmit} encType="multipart/form-data">
+                                    <div className="mb-6">
+                                        <label className="block text-sm font-medium text-gray-400 mb-2">Course Title</label>
+                                        <input
+                                            type="text"
+                                            value={data.title}
+                                            onChange={(e) => setData('title', e.target.value)}
+                                            className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:outline-none"
+                                        />
+                                        {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+                                    </div>
+                                    <div className="mb-6">
+                                        <label className="block text-sm font-medium text-gray-400 mb-2">Description</label>
+                                        <textarea
+                                            value={data.description}
+                                            onChange={(e) => setData('description', e.target.value)}
+                                            className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:outline-none"
+                                            rows="3"
+                                        ></textarea>
+                                        {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+                                    </div>
+                                    <div className="mb-6">
+                                        <label className="block text-sm font-medium text-gray-400 mb-2">Cover Image</label>
+                                        <input
+                                            type="file"
+                                            onChange={(e) => setData('cover', e.target.files[0])}
+                                            className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:ring-2 focus:ring-purple-600 focus:outline-none"
+                                            accept="image/*"
+                                        />
+                                        {errors.cover && <p className="text-red-500 text-sm mt-1">{errors.cover}</p>}
+                                    </div>
+                                    <div className="flex justify-end gap-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsModalOpen(false)}
+                                            className="px-6 py-2 text-gray-400 bg-gray-700 rounded-lg hover:bg-gray-600 transition"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={processing}
+                                            className="px-6 py-2 text-white bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition disabled:opacity-50"
+                                        >
+                                            {processing ? 'Saving...' : 'Save'}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 )}
