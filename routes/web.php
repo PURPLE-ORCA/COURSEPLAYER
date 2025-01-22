@@ -25,6 +25,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('courses', CourseController::class); // This defines all CRUD routes
+    Route::post('/courses/{course}/chapters', [CourseController::class, 'storeChapter'])
+    ->name('courses.chapters.store');
 
 });
 

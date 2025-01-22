@@ -25,6 +25,9 @@ class CourseController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        // Eager load the chapters relationship
+        $course->load('chapters');
+
         // Return the course details to the Inertia view
         return Inertia::render('Courses/Show', [
             'course' => $course,
@@ -36,7 +39,7 @@ class CourseController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'cover' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'cover' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
         $course = new Course();
@@ -52,5 +55,27 @@ class CourseController extends Controller
         $course->save();
 
         return redirect()->route('dashboard')->with('success', 'Course created successfully.');
+    }
+
+    public function storeChapter(Request $request, Course $course)
+    {
+        // Validate the request
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'video' => 'required|file|mimes:mp4,mov,avi|max:102400', // Allow video uploads (max 100MB)
+        ]);
+
+        // Store the video file
+        $videoPath = $request->file('video')->store('chapters_videos', 'public');
+
+        // Create the chapter and associate it with the course
+        $course->chapters()->create([
+            'title' => $request->title,
+            'video' => $videoPath,
+            'course_id' => $course->id, // Explicitly set the course_id
+        ]);
+
+        return redirect()->route('courses.show', $course)
+            ->with('success', 'Chapter added successfully!');
     }
 }
