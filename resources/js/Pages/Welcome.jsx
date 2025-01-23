@@ -1,7 +1,19 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
-import { Head, Link } from '@inertiajs/react';
+import { Head, useForm, Link } from '@inertiajs/react';
 
-export default function Welcome({ courses }) {
+export default function Welcome({ courses, canLogin, canRegister, laravelVersion, phpVersion }) {
+    const { data, setData, get } = useForm({
+        search: '',
+        category: '',
+        tag: '',
+    });
+
+    const handleSearch = () => {
+        get('/', {
+            preserveState: true,
+        });
+    };
+
     return (
         <>
             <Head title="Welcome" />
@@ -35,7 +47,24 @@ export default function Welcome({ courses }) {
                     Create, share, and learn from courses on any topic.
                 </p>
 
-                {/* Courses Catalog */}
+                {/* Search Bar */}
+                <div className="mt-6">
+                    <input
+                        type="text"
+                        placeholder="Search courses..."
+                        value={data.search}
+                        onChange={(e) => setData('search', e.target.value)}
+                        className="p-2 border border-gray-300 rounded-lg"
+                    />
+                    <button
+                        onClick={handleSearch}
+                        className="ml-2 p-2 bg-purple-600 text-white rounded-lg"
+                    >
+                        Search
+                    </button>
+                </div>
+
+                {/* Course Catalog */}
                 <div className="mt-12 w-full px-4">
                     <h2 className="text-4xl font-semibold text-purple-400 mb-6">
                         Explore Our Courses
@@ -50,6 +79,19 @@ export default function Welcome({ courses }) {
                                     <p className="text-gray-600 dark:text-gray-400 mt-2">
                                         {course.description}
                                     </p>
+
+                                    {/* Display Categories */}
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {course.categories.map((category) => (
+                                            <span
+                                                key={category.id}
+                                                className="px-2 py-1 bg-purple-100 text-purple-800 text-sm rounded-full"
+                                            >
+                                                {category.name}
+                                            </span>
+                                        ))}
+                                    </div>
+
                                     {course.cover && (
                                         <img
                                             src={`/storage/${course.cover}`}
@@ -62,7 +104,7 @@ export default function Welcome({ courses }) {
                                             href={route('courses.player', course.id)}
                                             className="text-purple-600 hover:text-purple-800"
                                         >
-                                            Enrolle in course
+                                            Enroll in course
                                         </Link>
                                     </div>
                                 </div>

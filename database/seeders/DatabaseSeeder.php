@@ -6,12 +6,45 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Chapter;
+use App\Models\Category;
+use App\Models\Tag;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     public function run()
     {
+        // Seed Categories
+        $categories = [
+            ['name' => 'Web Development'],
+            ['name' => 'Mobile Development'],
+            ['name' => 'Data Science'],
+            ['name' => 'Programming Languages'],
+            ['name' => 'DevOps'],
+        ];
+
+        foreach ($categories as $category) {
+            Category::create($category);
+        }
+
+        // Seed Tags
+        $tags = [
+            ['name' => 'PHP'],
+            ['name' => 'Laravel'],
+            ['name' => 'JavaScript'],
+            ['name' => 'React'],
+            ['name' => 'Node.js'],
+            ['name' => 'Python'],
+            ['name' => 'Database'],
+            ['name' => 'API'],
+            ['name' => 'Frontend'],
+            ['name' => 'Backend'],
+        ];
+
+        foreach ($tags as $tag) {
+            Tag::create($tag);
+        }
+
         // Create multiple users
         $user1 = User::create([
             'name' => 'Test User 1',
@@ -160,5 +193,27 @@ class DatabaseSeeder extends Seeder
                 'course_id' => $course6->id,
             ]);
         }
+
+        // Associate categories and tags with courses
+        $categories = Category::all();
+        $tags = Tag::all();
+
+        $course1->categories()->attach($categories->whereIn('name', ['Web Development', 'Programming Languages'])->pluck('id'));
+        $course1->tags()->attach($tags->whereIn('name', ['PHP', 'Laravel'])->pluck('id'));
+
+        $course2->categories()->attach($categories->whereIn('name', ['Web Development', 'DevOps'])->pluck('id'));
+        $course2->tags()->attach($tags->whereIn('name', ['PHP', 'Laravel', 'API'])->pluck('id'));
+
+        $course3->categories()->attach($categories->whereIn('name', ['Web Development', 'Frontend'])->pluck('id'));
+        $course3->tags()->attach($tags->whereIn('name', ['JavaScript', 'React'])->pluck('id'));
+
+        $course4->categories()->attach($categories->whereIn('name', ['Web Development', 'Backend'])->pluck('id'));
+        $course4->tags()->attach($tags->whereIn('name', ['JavaScript', 'Node.js', 'API'])->pluck('id'));
+
+        $course5->categories()->attach($categories->whereIn('name', ['Web Development'])->pluck('id'));
+        $course5->tags()->attach($tags->whereIn('name', ['PHP'])->pluck('id'));
+
+        $course6->categories()->attach($categories->whereIn('name', ['Web Development'])->pluck('id'));
+        $course6->tags()->attach($tags->whereIn('name', ['JavaScript', 'React', 'Node.js'])->pluck('id'));
     }
 }

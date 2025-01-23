@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Course;
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
 class CourseController extends Controller
@@ -19,14 +21,44 @@ class CourseController extends Controller
         ]);
     }
 
+    public function welcome(Request $request)
+    {
+        $query = Course::with(['user', 'categories']) // Eager load categories
+            ->whereHas('chapters'); // Only fetch courses with chapters
+    
+        // Search by title or description
+        if ($request->has('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%');
+        }
+    
+        // Filter by category (if categories are added later)
+        if ($request->has('category')) {
+            $query->whereHas('categories', function ($q) use ($request) {
+                $q->where('name', $request->category);
+            });
+        }
+    
+        // Filter by tag (if tags are added later)
+        if ($request->has('tag')) {
+            $query->whereHas('tags', function ($q) use ($request) {
+                $q->where('name', $request->tag);
+            });
+        }
+    
+        $courses = $query->get();
+    
+        return Inertia::render('Welcome', [
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
+            'laravelVersion' => Application::VERSION,
+            'phpVersion' => PHP_VERSION,
+            'courses' => $courses,
+        ]);
+    }
     
     public function show(Course $course)
     {
-        // Ensure the user can only view their own courses
-        if ($course->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
-
         // Eager load the chapters relationship
         $course->load('chapters');
 
