@@ -32,6 +32,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('courses', CourseController::class); // This defines all CRUD routes
     Route::post('/courses/{course}/chapters', [CourseController::class, 'storeChapter'])
     ->name('courses.chapters.store');
+    Route::get('/courses/{course}/player', [CourseController::class, 'player'])
+    ->name('courses.player');
 
 });
 

@@ -11,7 +11,9 @@ class CourseController extends Controller
 {
     public function index()
     {
-        $courses = Course::where('user_id', Auth::id())->get();
+        $courses = Course::where('user_id', Auth::id())
+        ->wherehas('chapters')
+        ->get();
 
         return Inertia::render('Dashboard' , [
             'courses' => $courses,
@@ -31,6 +33,26 @@ class CourseController extends Controller
         // Return the course details to the Inertia view
         return Inertia::render('Courses/Show', [
             'course' => $course,
+        ]);
+    }
+
+    public function player(Course $course)
+    {
+        // Eager load the chapters relationship
+        $course->load('chapters');
+
+         // If the course has no chapters, show a message
+        if ($course->chapters->isEmpty()) {
+            return Inertia::render('Courses/Player', [
+                'course' => $course,
+                'noChapters' => true, // Flag to indicate no chapters
+            ]);
+        }
+    
+        // Return the course details to the Inertia view
+        return Inertia::render('Courses/Player', [
+            'course' => $course,
+            'noChapters' => false, // Flag to indicate chapters exist
         ]);
     }
 

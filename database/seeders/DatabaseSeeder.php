@@ -2,23 +2,163 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use App\Models\Course;
+use App\Models\Chapter;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
-    public function run(): void
+    public function run()
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => bcrypt('password'),
+        // Create multiple users
+        $user1 = User::create([
+            'name' => 'Test User 1',
+            'email' => 'test1@example.com',
+            'password' => Hash::make('password'), // Use a secure password
         ]);
+
+        $user2 = User::create([
+            'name' => 'Test User 2',
+            'email' => 'test2@example.com',
+            'password' => Hash::make('password'), // Use a secure password
+        ]);
+
+        $user3 = User::create([
+            'name' => 'Test User 3',
+            'email' => 'test3@example.com',
+            'password' => Hash::make('password'), // Use a secure password
+        ]);
+
+        // Create multiple courses
+        $course1 = Course::create([
+            'title' => 'Introduction to Laravel',
+            'description' => 'Learn the basics of Laravel, a powerful PHP framework.',
+            'cover' => 'covers/COURSEPLAYER cover 1.png', // Use the same cover for all courses
+            'user_id' => $user1->id,
+        ]);
+
+        $course2 = Course::create([
+            'title' => 'Advanced Laravel Techniques',
+            'description' => 'Learn advanced techniques in Laravel.',
+            'cover' => 'covers/COURSEPLAYER cover.png', // Use the same cover for all courses
+            'user_id' => $user1->id,
+        ]);
+
+        $course3 = Course::create([
+            'title' => 'React for Beginners',
+            'description' => 'Get started with React, a popular JavaScript library.',
+            'cover' => 'covers/COURSEPLAYER cover 2.png', // Use the same cover for all courses
+            'user_id' => $user2->id,
+        ]);
+
+        $course4 = Course::create([
+            'title' => 'Node.js Mastery',
+            'description' => 'Master Node.js and build scalable applications.',
+            'cover' => 'covers/COURSEPLAYER cover.png', // Use the same cover for all courses
+            'user_id' => $user3->id,
+        ]);
+
+        // Helper function to toggle between the two video files
+        $getVideoPath = function ($index) {
+            return $index % 2 === 0
+                ? 'chapters_videos/COURSEPLAYER VID.mp4'
+                : 'chapters_videos/COURSEPLAYER VID 1.mp4';
+        };
+
+        // Create chapters for Course 1: Introduction to Laravel
+        Chapter::create([
+            'title' => 'Chapter 1: Getting Started',
+            'video' => $getVideoPath(0), // COURSEPLAYER VID.mp4
+            'course_id' => $course1->id,
+        ]);
+
+        Chapter::create([
+            'title' => 'Chapter 2: Routing in Laravel',
+            'video' => $getVideoPath(1), // COURSEPLAYER VID 1.mp4
+            'course_id' => $course1->id,
+        ]);
+
+        Chapter::create([
+            'title' => 'Chapter 3: Database Migrations',
+            'video' => $getVideoPath(0), // COURSEPLAYER VID.mp4
+            'course_id' => $course1->id,
+        ]);
+
+        // Create chapters for Course 2: Advanced Laravel Techniques
+        Chapter::create([
+            'title' => 'Chapter 1: Advanced Eloquent',
+            'video' => $getVideoPath(1), // COURSEPLAYER VID 1.mp4
+            'course_id' => $course2->id,
+        ]);
+
+        Chapter::create([
+            'title' => 'Chapter 2: API Development',
+            'video' => $getVideoPath(0), // COURSEPLAYER VID.mp4
+            'course_id' => $course2->id,
+        ]);
+
+        // Create chapters for Course 3: React for Beginners
+        Chapter::create([
+            'title' => 'Chapter 1: Introduction to React',
+            'video' => $getVideoPath(0), // COURSEPLAYER VID.mp4
+            'course_id' => $course3->id,
+        ]);
+
+        Chapter::create([
+            'title' => 'Chapter 2: Components and Props',
+            'video' => $getVideoPath(1), // COURSEPLAYER VID 1.mp4
+            'course_id' => $course3->id,
+        ]);
+
+        Chapter::create([
+            'title' => 'Chapter 3: State and Lifecycle',
+            'video' => $getVideoPath(0), // COURSEPLAYER VID.mp4
+            'course_id' => $course3->id,
+        ]);
+
+        // Create chapters for Course 4: Node.js Mastery
+        Chapter::create([
+            'title' => 'Chapter 1: Introduction to Node.js',
+            'video' => $getVideoPath(1), // COURSEPLAYER VID 1.mp4
+            'course_id' => $course4->id,
+        ]);
+
+        Chapter::create([
+            'title' => 'Chapter 2: Building REST APIs',
+            'video' => $getVideoPath(0), // COURSEPLAYER VID.mp4
+            'course_id' => $course4->id,
+        ]);
+
+        Chapter::create([
+            'title' => 'Chapter 3: Working with Databases',
+            'video' => $getVideoPath(1), // COURSEPLAYER VID 1.mp4
+            'course_id' => $course4->id,
+        ]);
+
+        // Add a course with no chapters (edge case)
+        $course5 = Course::create([
+            'title' => 'Empty Course',
+            'description' => 'This course has no chapters.',
+            'cover' => 'covers/COURSEPLAYER cover.png', // Use the same cover
+            'user_id' => $user1->id,
+        ]);
+
+        // Add a course with many chapters (edge case)
+        $course6 = Course::create([
+            'title' => 'Course with Many Chapters',
+            'description' => 'This course has many chapters to test scrolling or pagination.',
+            'cover' => 'covers/COURSEPLAYER cover.png', // Use the same cover
+            'user_id' => $user2->id,
+        ]);
+
+        for ($i = 1; $i <= 10; $i++) {
+            Chapter::create([
+                'title' => "Chapter $i: Topic $i",
+                'video' => $getVideoPath($i), // Toggle between the two videos
+                'course_id' => $course6->id,
+            ]);
+        }
     }
 }

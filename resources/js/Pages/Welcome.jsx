@@ -56,10 +56,10 @@ export default function Welcome({ courses }) {
                                     )}
                                     <div className="mt-4">
                                         <Link
-                                            // href={route('courses.show', course.id)}
+                                            href={route('courses.player', course.id)}
                                             className="text-purple-600 hover:text-purple-800"
                                         >
-                                            View Course
+                                            Enrolle in course
                                         </Link>
                                     </div>
                                 </div>
