@@ -12,7 +12,6 @@ class CourseController extends Controller
     public function index()
     {
         $courses = Course::where('user_id', Auth::id())
-        ->wherehas('chapters')
         ->get();
 
         return Inertia::render('Dashboard' , [
@@ -20,6 +19,7 @@ class CourseController extends Controller
         ]);
     }
 
+    
     public function show(Course $course)
     {
         // Ensure the user can only view their own courses

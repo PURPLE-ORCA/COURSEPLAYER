@@ -13,6 +13,9 @@ export default function Welcome({ courses }) {
                 </div>
                 <ul className="flex gap-6 items-center text-white font-semibold">
                     <li className='flex gap-6'>
+                        <Link href={route('dashboard')} className="hover:text-purple-300 transition duration-300">
+                            Dashboard
+                        </Link>
                         <Link href={route('login')} className="hover:text-purple-300 transition duration-300">
                             Login
                         </Link>

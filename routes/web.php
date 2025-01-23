@@ -9,7 +9,9 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
 
-    $courses = Course::with('user')->get();
+    $courses = Course::with('user')
+    ->wherehas('chapters')
+    ->get();
 
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
