@@ -8,6 +8,7 @@ use App\Models\Course;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class CourseController extends Controller
 {
@@ -132,4 +133,38 @@ class CourseController extends Controller
         return redirect()->route('courses.show', $course)
             ->with('success', 'Chapter added successfully!');
     }
+
+        public function update(Request $request, Course $course)
+        {
+            // Ensure the user can only update their own courses
+            if ($course->user_id !== Auth::id()) {
+                abort(403, 'Unauthorized action.');
+            }
+        
+            // Validate the request
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'cover' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Make cover optional
+            ]);
+        
+            // Update the course title and description
+            $course->title = $request->title;
+            $course->description = $request->description;
+        
+            // Handle the file upload separately
+            if ($request->hasFile('cover')) {
+                // Delete the old cover if it exists
+                if ($course->cover) {
+                    Storage::disk('public')->delete($course->cover);
+                }
+                $path = $request->file('cover')->store('covers', 'public');
+                $course->cover = $path;
+            }
+        
+            $course->save();
+        
+            return redirect()->route('courses.show', $course)
+                ->with('success', 'Course updated successfully.');
+        }
 }
